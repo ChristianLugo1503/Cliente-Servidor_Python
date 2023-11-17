@@ -48,7 +48,7 @@ def receive_connections():
 
         print(f"**** {username} se conectó desde {str(address)} ****") #al conectarse el usuario imprime el mensaje
 
-        message = f"    {username} se ha unido!".encode("utf-8") # este mensaje se enviara por el broadcast
+        message = f"**** {username} se ha unido ****".encode("utf-8") # este mensaje se enviara por el broadcast
         broadcast(message, client)
         client.send("**** Conectado al servidor ****".encode("utf-8"))
 
