@@ -8,7 +8,7 @@ port = 55555
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind((host, port)) #le pasamos los datos de conexión
 server.listen()
-print(f"Servidor activo en {host}:{port}")
+print(f"**** Servidor activo en {host}:{port} ****")
 
 #listas
 clients = [] #se almacenan las conexiones de los uclientes
@@ -29,7 +29,7 @@ def handle_messages(client):
         except:
             index = clients.index(client)
             username = usernames[index]
-            broadcast(f"    {username} salió del chat".encode('utf-8'), client)
+            broadcast(f"**** {username} salió del chat ****".encode('utf-8'), client)
             clients.remove(client)
             usernames.remove(username)
             client.close()
@@ -46,11 +46,11 @@ def receive_connections():
         clients.append(client)
         usernames.append(username)
 
-        print(f"{username} se conecto desde {str(address)}") #al conectarse el usuario imprime el mensaje
+        print(f"**** {username} se conectó desde {str(address)} ****") #al conectarse el usuario imprime el mensaje
 
         message = f"    {username} se ha unido!".encode("utf-8") # este mensaje se enviara por el broadcast
         broadcast(message, client)
-        client.send("Conectado al servidor".encode("utf-8"))
+        client.send("**** Conectado al servidor ****".encode("utf-8"))
 
         thread = threading.Thread(target=handle_messages, args=(client,))
         thread.start()

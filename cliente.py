@@ -78,6 +78,7 @@ class Ventana2:
     def write_messages(self, username, message):
         mensaje = f"{username}: {message}"
         self.client.send(mensaje.encode('utf-8'))
+        self.lista.insert(tk.END, f"        {message}")
 
     def btnEnviar(self, username, message):
         write_thread = threading.Thread(target=self.write_messages, args=(username, message))
