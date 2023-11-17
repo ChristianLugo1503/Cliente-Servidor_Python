@@ -63,9 +63,6 @@ class Ventana2:
         receive_thread = threading.Thread(target=self.receive_messages, args=(self.client, nombre))
         receive_thread.start()
 
-        
-        self.chat_log = "C:/Users/Scotty^/Desktop/chat_log.txt"
-
     def receive_messages(self, cliente, username):
         try:
             while True:
@@ -74,20 +71,13 @@ class Ventana2:
                     cliente.send(username.encode("utf-8"))
                 else:
                     self.lista.insert(tk.END, message)
-                    self.guardar_mensaje(message)  # Guardar el mensaje en el archivo
         except Exception as e:
             self.lista.insert(tk.END, f"\nHa ocurrido un error: {e}")
             cliente.close()
 
     def write_messages(self, username, message):
         mensaje = f"{username}: {message}"
-        self.lista.insert(tk.END, mensaje)  # Mostrar el mensaje en la ventana local
-        self.guardar_mensaje(mensaje)  # Guardar el mensaje en el archivo
-        self.client.send(mensaje.encode('utf-8'))  # Enviar el mensaje al servidor
-
-    def guardar_mensaje(self, message):
-        with open(self.chat_log, "a") as file:
-            file.write(message + "\n")
+        self.client.send(mensaje.encode('utf-8'))
 
     def btnEnviar(self, username, message):
         write_thread = threading.Thread(target=self.write_messages, args=(username, message))
@@ -103,7 +93,6 @@ class Ventana2:
         primera_ventana = Ventana1(ventana1)
         ventana1.mainloop()
 
-# Crear y mostrar la primera ventana
 ventana_principal = tk.Tk()
 app_ventana1 = Ventana1(ventana_principal)
 ventana_principal.mainloop()
