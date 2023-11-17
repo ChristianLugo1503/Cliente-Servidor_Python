@@ -46,7 +46,7 @@ while True:
         # Nuevo usuario se une a la sala de chat
         if not user_addr in users:
             # El usuario ingresó al mensaje de la sala de chat
-            enter_msg = time.asctime() + "\n" + user_data.decode() + "Entrar en la sala de chat ..."
+            enter_msg = "\n" + time.asctime() + "\n" + user_data.decode() + " se unio al chat ..."
             # El usuario ingresa a la sala de chat, envía un recordatorio y lo graba en un archivo
             send_record(enter_msg)
             # Agregar el usuario a los usuarios del diccionario de usuario
