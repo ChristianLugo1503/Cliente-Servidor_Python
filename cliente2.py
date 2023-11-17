@@ -2,6 +2,7 @@ import socket
 import threading
 import tkinter as tk
 from datetime import datetime
+from pathlib import Path
 
 class Ventana1:
     def __init__(self, master):
@@ -64,7 +65,14 @@ class Ventana2:
         receive_thread = threading.Thread(target=self.receive_messages, args=(self.client, nombre))
         receive_thread.start()
 
-        self.chat_log = f"C:/Users/Scotty^/Desktop/chat_log_{datetime.now().strftime('%d-%m-%Y_%H-%M-%S')}.txt"
+        # Obtener la ruta al escritorio del usuario actual
+        desktop_path = Path.home() / "Desktop"
+
+        # Nombre del archivo de registro con la fecha y hora actual
+        log_filename = f"chat_log_{datetime.now().strftime('%d-%m-%Y_%H-%M-%S')}.txt"
+
+        # Ruta completa al archivo de registro en el escritorio
+        self.chat_log = desktop_path / log_filename
 
     def receive_messages(self, cliente, username):
         try:
