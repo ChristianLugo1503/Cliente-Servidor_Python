@@ -14,6 +14,7 @@ class Ventana1:
 
         self.entrada_nombre = tk.Entry(self.master)
         self.entrada_nombre.pack(pady=10)
+        self.entrada_nombre.bind("<Return>", lambda event: self.ir_a_ventana2())
 
         self.boton_siguiente = tk.Button(master, text="Continuar", command=self.ir_a_ventana2)
         self.boton_siguiente.pack(pady=20)
@@ -52,6 +53,7 @@ class Ventana2:
         self.entrada_texto.pack(pady=10)
         self.entrada_texto.place(relx=0.100, rely=0.800)
         self.entrada_texto.config(width=50)
+        self.entrada_texto.bind("<Return>", lambda event: self.btnEnviar(nombre, self.entrada_texto.get()))
 
         self.enviar = tk.Button(master, text="Enviar mensaje", command=lambda: self.btnEnviar(nombre, self.entrada_texto.get()))
         self.enviar.pack(pady=20)
@@ -90,6 +92,8 @@ class Ventana2:
     def btnEnviar(self, username, message):
         write_thread = threading.Thread(target=self.write_messages, args=(username, message))
         write_thread.start()
+        # limpiar el texto del input
+        self.entrada_texto.delete(0, tk.END)
 
     def ir_a_ventana1(self, username):
         mensaje = f"{username} salió del chat"
