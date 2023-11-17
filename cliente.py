@@ -1,7 +1,6 @@
 import socket
 import threading
 import tkinter as tk
-from tkinter import scrolledtext
 
 class Ventana1:
     def __init__(self, master):
@@ -30,37 +29,65 @@ class Ventana2:
         self.master.title("Cliente")
         self.master.geometry("550x600")
 
-        #Mensaje de bienvenida por medio de un label
         etiqueta_nombre = tk.Label(self.master, text=f"¡Bienvenido! {nombre}!")
         etiqueta_nombre.pack(pady=20)
 
-        #Creacion y configuracion del listbox
-        lista = tk.Listbox(self.master, selectmode=tk.SINGLE)
-        lista.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-        lista.place(relx=0.10, rely=0.10)
-        lista.config(width=70, height=25)
-        #Creacion y configuracion del scrollbar
-        scrollbar = tk.Scrollbar(self.master, orient=tk.VERTICAL, command=lista.yview)
-        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-        lista.config(yscrollcommand=scrollbar.set) #La barra de desplazamiento afecta el listBox
+        self.lista = tk.Listbox(self.master, selectmode=tk.SINGLE)
+        self.lista.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        self.lista.place(relx=0.10, rely=0.10)
+        self.lista.config(width=70, height=25)
 
-        #entrada del mensaje
+        scrollbar = tk.Scrollbar(self.master, orient=tk.VERTICAL, command=self.lista.yview)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        self.lista.config(yscrollcommand=scrollbar.set)
+
         self.entrada_texto = tk.Entry(self.master)
         self.entrada_texto.pack(pady=10)
         self.entrada_texto.place(relx=0.100, rely=0.800)
         self.entrada_texto.config(width=50)
 
-        #Boton para enviar el mensaje
-        self.enviar = tk.Button(master, text="Enviar mensaje", command="")
+        self.enviar = tk.Button(master, text="Enviar mensaje", command=lambda: self.btnEnviar(nombre, self.entrada_texto.get()))
         self.enviar.pack(pady=20)
         self.enviar.place(relx=0.700, rely=0.800)
-        
-        #Boton para salir
-        self.boton_regresar = tk.Button(master, text="Salir", command=lambda: self.ir_a_ventana1())
+
+        self.boton_regresar = tk.Button(master, text="Salir", command=lambda: self.ir_a_ventana1(nombre))
         self.boton_regresar.pack(pady=20)
         self.boton_regresar.place(relx=0.500, rely=0.900)
 
-    def ir_a_ventana1(self):
+        host = '127.0.0.1'
+        port = 55555
+
+        self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.client.connect((host, port))
+
+        receive_thread = threading.Thread(target=self.receive_messages, args=(self.client, nombre))
+        receive_thread.start()
+
+    def receive_messages(self, cliente, username):
+        try:
+            while True:
+                message = cliente.recv(1024).decode('utf-8')
+                if message == "@username":
+                    cliente.send(username.encode("utf-8"))
+                else:
+                    self.lista.insert(tk.END, message)
+        except Exception as e:
+            self.lista.insert(tk.END, f"\nHa ocurrido un error: {e}")
+            cliente.close()
+
+    def write_messages(self, username, message):
+        mensaje = f"{username}: {message}"
+        self.client.send(mensaje.encode('utf-8'))
+
+    def btnEnviar(self, username, message):
+        write_thread = threading.Thread(target=self.write_messages, args=(username, message))
+        write_thread.start()
+
+    def ir_a_ventana1(self, username):
+        mensaje = f"{username} salió del chat"
+        self.client.send(mensaje.encode('utf-8'))
+        self.client.close()
+        
         self.master.destroy()
         ventana1 = tk.Tk()
         primera_ventana = Ventana1(ventana1)
