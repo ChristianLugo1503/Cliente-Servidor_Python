@@ -22,7 +22,7 @@ class Ventana1:
         nombre = self.entrada_nombre.get()
         
         # verificar si el campo nombre esta vacio
-        if not nombre.strip():  # Using strip() to remove leading and trailing spaces
+        if not nombre.strip():  
             tk.messagebox.showerror("Error", "Por favor, ingrese su nombre.")
             return
         
