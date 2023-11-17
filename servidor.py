@@ -1,31 +1,44 @@
 import socket   
 import threading
+import time
 
 host = 'localhost'
 port = 55555
 
-#crear socket lo llamamos server
+# Crear socket, lo llamamos server
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server.bind((host, port)) #le pasamos los datos de conexión
+server.bind((host, port))
 server.listen()
 print(f"**** Servidor activo en {host}:{port} ****")
 
-#listas
-clients = [] #se almacenan las conexiones de los uclientes
-usernames = [] # se almacenan los usernames de los clientes
+# Listas
+clients = []       # Se almacenan las conexiones de los clientes
+usernames = []     # Se almacenan los usernames de los clientes
+chat_history = []  # Se almacenará el historial del chat
 
-#Funcion para enviar los mensajes a todos los clientes
-def broadcast(message, _client): # envia el mensaje a todos los clientes menos al que lo envio
-    for client in clients: #recorremos la lista
-        if client != _client: #si el cliente no es igual a el mismo, envia el mensaje
+# Función para enviar los mensajes a todos los clientes
+def broadcast(message, _client):
+    for client in clients:
+        if client != _client:
             client.send(message)
 
-#Funcion para enviar mensajes
-def handle_messages(client): 
+# Función para guardar el historial del chat en un archivo de texto
+def save_chat_history():
+    with open('chat_history.txt', 'w') as file:
+        for entry in chat_history:
+            file.write(f"{entry['message']}\n")
+
+# Función para enviar mensajes
+def handle_messages(client, username):
     while True:
         try:
-            message = client.recv(1024) #obtenemos el mensaje
-            broadcast(message, client) #se lo envia al broadcast para distribuirlo
+            message = client.recv(1024)
+            if not message:  # Si no hay mensaje, el cliente se desconectó
+                break
+            chat_entry = {'message': message.decode('utf-8')}
+            chat_history.append(chat_entry)
+            save_chat_history()  # Guardar el historial después de cada mensaje
+            broadcast(message, client)
         except:
             index = clients.index(client)
             username = usernames[index]
@@ -34,11 +47,11 @@ def handle_messages(client):
             usernames.remove(username)
             client.close()
             break
-        
-#Funcion para aceptar y recibir conexiones
+
+# Función para aceptar y recibir conexiones
 def receive_connections():
     while True:
-        client, address = server.accept() #aceptamos la conexion de cliente
+        client, address = server.accept()
 
         client.send("@username".encode("utf-8"))
         username = client.recv(1024).decode('utf-8')
@@ -46,13 +59,33 @@ def receive_connections():
         clients.append(client)
         usernames.append(username)
 
-        print(f"**** {username} se conectó desde {str(address)} ****") #al conectarse el usuario imprime el mensaje
+        print(f"**** {username} se conectó desde {str(address)} ****")
 
-        message = f"**** {username} se ha unido ****".encode("utf-8") # este mensaje se enviara por el broadcast
+        # Enviar historial del chat al nuevo cliente
+        for entry in chat_history:
+            history_message = f"{entry['username']}: {entry['message']}".encode('utf-8')
+            client.send(history_message)
+            # Agregar un pequeño retraso para garantizar que los mensajes se reciban por separado
+            time.sleep(0.1)
+            
+        message = f"**** {username} se ha unido ****".encode("utf-8")
         broadcast(message, client)
         client.send("**** Conectado al servidor ****".encode("utf-8"))
 
-        thread = threading.Thread(target=handle_messages, args=(client,))
+        thread = threading.Thread(target=handle_messages, args=(client, username))
         thread.start()
 
+# Cargar historial del chat al inicio del servidor
+try:
+    with open('chat_history.txt', 'r') as file:
+        lines = file.readlines()
+        for line in lines:
+            parts = line.strip().split(': ')
+            if len(parts) == 2:
+                entry = {'username': parts[0], 'message': parts[1]}
+                chat_history.append(entry)
+except FileNotFoundError:
+    pass  # El archivo no existe, lo crearemos al guardar el primer mensaje
+
+# Iniciar el servidor y recibir conexiones
 receive_connections()
