@@ -1,6 +1,7 @@
 import socket
 import threading
 import tkinter as tk
+from tkinter import messagebox
 
 class Ventana1:
     def __init__(self, master):
@@ -19,6 +20,12 @@ class Ventana1:
 
     def ir_a_ventana2(self):
         nombre = self.entrada_nombre.get()
+        
+        # verificar si el campo nombre esta vacio
+        if not nombre.strip():  # Using strip() to remove leading and trailing spaces
+            tk.messagebox.showerror("Error", "Por favor, ingrese su nombre.")
+            return
+        
         self.master.withdraw()
         ventana2 = tk.Toplevel(self.master)
         segunda_ventana = Ventana2(ventana2, nombre)
