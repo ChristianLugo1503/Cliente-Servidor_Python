@@ -37,7 +37,7 @@ class Ventana2:
         self.master.title("Cliente")
         self.master.geometry("550x600")
 
-        etiqueta_nombre = tk.Label(self.master, text=f"¡Bienvenido! {nombre}!")
+        etiqueta_nombre = tk.Label(self.master, text=f"¡Bienvenido! {nombre}")
         etiqueta_nombre.pack(pady=20)
 
         self.lista = tk.Listbox(self.master, selectmode=tk.SINGLE)

@@ -63,10 +63,11 @@ def receive_connections():
 
         # Enviar historial del chat al nuevo cliente
         for entry in chat_history:
-            history_message = f"{entry['username']}: {entry['message']}".encode('utf-8')
-            client.send(history_message)
-            # Agregar un pequeño retraso para garantizar que los mensajes se reciban por separado
-            time.sleep(0.1)
+            if 'username' in entry and 'message' in entry:
+                history_message = f"{entry['username']}: {entry['message']}".encode('utf-8')
+                client.send(history_message)
+                # Agregar un pequeño retraso para garantizar que los mensajes se reciban por separado
+                time.sleep(0.1)
             
         message = f"**** {username} se ha unido ****".encode("utf-8")
         broadcast(message, client)
