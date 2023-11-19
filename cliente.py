@@ -63,7 +63,7 @@ class Ventana2:
         self.boton_regresar.pack(pady=20)
         self.boton_regresar.place(relx=0.500, rely=0.900)
 
-        host = '127.0.0.1'
+        host = '192.168.1.238'
         port = 55555
 
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
